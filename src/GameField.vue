@@ -2,7 +2,6 @@
   <button @click="onClick()">
     Смена видимости
   </button>
-  {{ display }}
 
   <div class="m-auto w-6/12">
     <div
@@ -16,7 +15,7 @@
         <div class="border border-black cell">
           <color-circle
             :index="i"
-            :display="display"
+            :display="checkPosition(i)"
           />
         </div>
       </template>
@@ -27,6 +26,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import ColorCircle from './ColorCircle.vue';
+import { getRandom, getMapKey, getGridIndex } from './utils/utils';
 
 export default defineComponent({
   name: 'App',
@@ -35,25 +35,45 @@ export default defineComponent({
   },
   setup() {
     const arr = 'test';
-    const display = ref(false);
 
     const iterator = function() {
       const grid = document.getElementById('grid');
-      console.log(grid);
+      // console.log(grid);
+      // console.log(getRandom(9));
     };
+
+    const nextStep = function() {
+      for (let index = 0; index < 3; index++) {
+        let row, column, gridIndex;
+        do {
+          row = getRandom(9);
+          column = getRandom(9);
+          gridIndex = getGridIndex(row, column);
+        } while (map.has(gridIndex) && map.size !== 0 && map.size !== 81);
+
+        map.set(gridIndex, { row: row, column: column, active: true });
+      }
+    };
+
+    const map = new Map();
+    nextStep();
 
     onMounted(() => {
       iterator();
     });
 
     const onClick = function() {
-      display.value = !display.value;
+      nextStep();
+    };
+
+    const checkPosition = function(index: number): boolean {
+      return map.has(index);
     };
 
     return {
       arr,
-      display,
       onClick,
+      checkPosition,
     };
   },
 });
