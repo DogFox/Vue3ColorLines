@@ -1,34 +1,41 @@
 <template>
+  <button @click="onClick()">
+    Смена видимости
+  </button>
+  {{ display }}
+
   <div class="m-auto w-6/12">
     <div
       id="grid"
       class="game-field"
     >
-      <!-- <div class="grid grid-cols-9"> -->
       <template
         v-for="i in 81"
         :key="i"
       >
         <div class="border border-black cell">
-          <div class="circle">
-            {{ i }}
-          </div>
+          <color-circle
+            :index="i"
+            :display="display"
+          />
         </div>
       </template>
-    <!-- </div> -->
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
+import ColorCircle from './ColorCircle.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
+    ColorCircle,
   },
   setup() {
     const arr = 'test';
+    const display = ref(false);
 
     const iterator = function() {
       const grid = document.getElementById('grid');
@@ -39,9 +46,14 @@ export default defineComponent({
       iterator();
     });
 
+    const onClick = function() {
+      display.value = !display.value;
+    };
+
     return {
       arr,
-
+      display,
+      onClick,
     };
   },
 });
