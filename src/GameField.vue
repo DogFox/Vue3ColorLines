@@ -12,10 +12,14 @@
         v-for="(item, index) in map"
         :key="index"
       >
-        <div class="border border-black cell">
+        <div
+          class="border border-black cell"
+          @click="clickOnCell(map.get(index+1))"
+        >
           <color-circle
             :index="index+1"
             :display="map.get(index+1).active"
+            @click="activateBall(map.get(index+1))"
           />
         </div>
       </template>
@@ -27,6 +31,7 @@
 import { defineComponent, ref, reactive, onMounted } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { getRandom, getMapKey, getGridIndex } from './utils/utils';
+import { TBall } from './types';
 
 export default defineComponent({
   name: 'App',
@@ -34,7 +39,7 @@ export default defineComponent({
     ColorCircle,
   },
   setup() {
-    const nextStep = function() {
+    const nextMove = function() {
       for (let index = 0; index < 3; index++) {
         let row, column, gridIndex;
         do {
@@ -64,24 +69,44 @@ export default defineComponent({
     // const map = new Map();
     const map = reactive(new Map());
     genMap();
-    nextStep();
+    nextMove();
 
     onMounted(() => {
       // iterator();
     });
 
     const onClick = function() {
-      nextStep();
+      nextMove();
     };
 
-    const checkPosition = function(index: string): boolean {
-      return map.has(index);
+    let activeRow = -1;
+    let activeCol = -1;
+    let activeBall = {} as TBall;
+
+    const activateBall = function(ball: TBall) {
+      if (ball.active) {
+        activeRow = ball.row;
+        activeCol = ball.column;
+        activeBall = ball;
+      }
+      console.log(ball);
+      console.log(activeRow, activeCol);
+    };
+
+    const clickOnCell = function(ball: TBall) {
+      if (activeRow >= 0 && activeCol >= 0 && ball.active === false && activeBall.active) {
+        ball.active = true;
+        activeBall.active = false;
+        activeBall = {} as TBall;
+        nextMove();
+      }
     };
 
     return {
       map,
       onClick,
-      checkPosition,
+      activateBall,
+      clickOnCell,
     };
   },
 });
