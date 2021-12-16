@@ -33,6 +33,7 @@ import { defineComponent, ref, reactive } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { getRandom, getGridIndex } from './utils/utils';
 import { TBall } from './types';
+import { verticalProcessing, genMap, nextMove } from './processing';
 
 export default defineComponent({
   name: 'App',
@@ -40,46 +41,11 @@ export default defineComponent({
     ColorCircle,
   },
   setup() {
-    const nextMove = function() {
-      for (let index = 0; index < 3; index++) {
-        let row, column, gridIndex;
-        do {
-          row = getRandom(9);
-          column = getRandom(9);
-          gridIndex = getGridIndex(row, column);
-        } while (checkIndexInMap(gridIndex));
-
-        const color = getRandomColor();
-        map.set(gridIndex, { index: gridIndex, row: row, column: column, active: true, color: color });
-      }
-    };
-
-    const genMap = function() {
-      for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-          const gridIndex = getGridIndex(row, col);
-          const color = getRandomColor();
-          map.set(gridIndex, { index: gridIndex, row: row, column: col, active: false, color: 'red' });
-        }
-      }
-    };
-
-    const checkIndexInMap = function(index: number) {
-      const el = map.get(index);
-      return el.active;
-    };
-
-    const colorArray = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
-    const getRandomColor = function() {
-      return colorArray[getRandom(7)];
-    };
-
-    const map = reactive(new Map());
-    genMap();
-    nextMove();
+    const map = genMap();
+    nextMove(map);
 
     const onClick = function() {
-      nextMove();
+      nextMove(map);
     };
 
     let activeRow = -1;
@@ -95,41 +61,7 @@ export default defineComponent({
     };
 
     const checkMovedBall = function(ball: TBall) {
-      const colVertical = ball.column;
-      const rowHorizontal = ball.row;
-      const currentColor = ball.color;
-
-      let startRowVertical = ball.row;
-      let endRowVertical = ball.row;
-      const startColumnHorizontal = ball.column;
-
-      // Идем вверх от шара и смотрим такие же
-      let neighborBall = ball;
-      while (neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.active) {
-        neighborBall = map.get(neighborBall.index - 9);
-        if (neighborBall.color === currentColor && neighborBall.active) {
-          startRowVertical = neighborBall.row;
-        }
-      }
-
-      // Вернемся назад к шару и смотрим вниз такие же
-      neighborBall = ball;
-      console.log(neighborBall);
-      while (neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.active) {
-        neighborBall = map.get(neighborBall.index + 9);
-        if (neighborBall.color === currentColor && neighborBall.active) {
-          endRowVertical = neighborBall.row;
-        }
-      }
-
-      if (endRowVertical - startRowVertical + 1 >= 5) {
-        for (let index = startRowVertical; index <= endRowVertical; index++) {
-          const burnedBall = map.get(getGridIndex(index, colVertical));
-          burnedBall.active = false;
-          console.log(map);
-        }
-      }
-      // console.log(ball,currentRow, currentCol, currentColor);
+      verticalProcessing(ball, map);
     };
 
     const clickOnCell = function(ball: TBall) {
@@ -139,7 +71,7 @@ export default defineComponent({
         activeBall.active = false;
         activeBall = {} as TBall;
         checkMovedBall(ball);
-        nextMove();
+        nextMove(map);
       }
     };
 
