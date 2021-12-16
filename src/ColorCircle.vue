@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="[ 'circle', { display: display}]"
+    :class="[ 'circle', 'color', { display: display}]"
   >
     {{ index }}
   </div>
@@ -16,13 +16,13 @@ export default defineComponent({
   props: {
     index: { type: Number, default: 0 },
     display: { type: Boolean, default: false },
+    color: { type: String, required: true },
   },
 });
 </script>
 
 <style lang="scss">
 .circle {
-  background-color: red;
   border-radius: 50%;
   border: 1px solid #0F1C3F;
   height: 55px;
@@ -30,6 +30,9 @@ export default defineComponent({
   // display: none;
   visibility: hidden;
 
+}
+.color {
+  background-color: v-bind(color);
 }
 .display {
   visibility: visible;

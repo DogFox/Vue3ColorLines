@@ -19,6 +19,7 @@
           <color-circle
             :index="index+1"
             :display="map.get(index+1).active"
+            :color="map.get(index+1).color"
             @click="activateBall(map.get(index+1))"
           />
         </div>
@@ -28,9 +29,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import ColorCircle from './ColorCircle.vue';
-import { getRandom, getMapKey, getGridIndex } from './utils/utils';
+import { getRandom, getGridIndex } from './utils/utils';
 import { TBall } from './types';
 
 export default defineComponent({
@@ -48,7 +49,8 @@ export default defineComponent({
           gridIndex = getGridIndex(row, column);
         } while (checkIndexInMap(gridIndex));
 
-        map.set(gridIndex, { row: row, column: column, active: true });
+        const color = getRandomColor();
+        map.set(gridIndex, { index: gridIndex, row: row, column: column, active: true, color: color });
       }
     };
 
@@ -56,7 +58,8 @@ export default defineComponent({
       for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
           const gridIndex = getGridIndex(row, col);
-          map.set(gridIndex, { row: row, column: col, active: false });
+          const color = getRandomColor();
+          map.set(gridIndex, { index: gridIndex, row: row, column: col, active: false, color: 'red' });
         }
       }
     };
@@ -66,14 +69,14 @@ export default defineComponent({
       return el.active;
     };
 
-    // const map = new Map();
+    const colorArray = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+    const getRandomColor = function() {
+      return colorArray[getRandom(7)];
+    };
+
     const map = reactive(new Map());
     genMap();
     nextMove();
-
-    onMounted(() => {
-      // iterator();
-    });
 
     const onClick = function() {
       nextMove();
@@ -89,15 +92,53 @@ export default defineComponent({
         activeCol = ball.column;
         activeBall = ball;
       }
-      console.log(ball);
-      console.log(activeRow, activeCol);
+    };
+
+    const checkMovedBall = function(ball: TBall) {
+      const colVertical = ball.column;
+      const rowHorizontal = ball.row;
+      const currentColor = ball.color;
+
+      let startRowVertical = ball.row;
+      let endRowVertical = ball.row;
+      const startColumnHorizontal = ball.column;
+
+      // Идем вверх от шара и смотрим такие же
+      let neighborBall = ball;
+      while (neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.active) {
+        neighborBall = map.get(neighborBall.index - 9);
+        if (neighborBall.color === currentColor && neighborBall.active) {
+          startRowVertical = neighborBall.row;
+        }
+      }
+
+      // Вернемся назад к шару и смотрим вниз такие же
+      neighborBall = ball;
+      console.log(neighborBall);
+      while (neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.active) {
+        neighborBall = map.get(neighborBall.index + 9);
+        if (neighborBall.color === currentColor && neighborBall.active) {
+          endRowVertical = neighborBall.row;
+        }
+      }
+
+      if (endRowVertical - startRowVertical + 1 >= 5) {
+        for (let index = startRowVertical; index <= endRowVertical; index++) {
+          const burnedBall = map.get(getGridIndex(index, colVertical));
+          burnedBall.active = false;
+          console.log(map);
+        }
+      }
+      // console.log(ball,currentRow, currentCol, currentColor);
     };
 
     const clickOnCell = function(ball: TBall) {
       if (activeRow >= 0 && activeCol >= 0 && ball.active === false && activeBall.active) {
         ball.active = true;
+        ball.color = activeBall.color;
         activeBall.active = false;
         activeBall = {} as TBall;
+        checkMovedBall(ball);
         nextMove();
       }
     };
@@ -123,12 +164,5 @@ export default defineComponent({
    display: flex;
    align-items: center;
    justify-content: center;
-}
-.circle {
-   background-color: red;
-   border-radius: 50%;
-   border: 1px solid #0F1C3F;
-   height: 55px;
-   width: 55px;
 }
 </style>
