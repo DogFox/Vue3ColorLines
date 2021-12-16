@@ -3,6 +3,7 @@ import { getRandom, getGridIndex } from './utils/utils';
 import { reactive } from 'vue';
 
 const colorArray = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+// const colorArray = ['red', 'red', 'red', 'red', 'red', 'red', 'red'];
 
 function getRandomColor() {
   return colorArray[getRandom(7)];
@@ -38,7 +39,7 @@ function genMap():Map<number, TBall> {
   return map;
 }
 
-function verticalProcessing(ball: TBall, map: Map<number, TBall>): void {
+function verticalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
   const colVertical = ball.column;
   const currentColor = ball.color;
 
@@ -62,14 +63,124 @@ function verticalProcessing(ball: TBall, map: Map<number, TBall>): void {
     }
   }
 
+  const burnedBalls = [];
   if (endRowVertical - startRowVertical + 1 >= 5) {
     for (let index = startRowVertical; index <= endRowVertical; index++) {
-      const burnedBall = map.get(getGridIndex(index, colVertical));
-      if (burnedBall) {
-        burnedBall.active = false;
-      }
+      burnedBalls.push(getGridIndex(index, colVertical));
     }
   }
+  return burnedBalls;
 }
 
-export { verticalProcessing, genMap, nextMove };
+function horizontalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
+  const rowHorizintal = ball.row;
+  const currentColor = ball.color;
+
+  let startColumnHorizontal = ball.column;
+  let endColumnHorizontal = ball.column;
+  // Идем влево от шара и смотрим такие же
+  let neighborBall: TBall| undefined = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 1) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 1);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      startColumnHorizontal = neighborBall.column;
+    }
+  }
+
+  // Вернемся назад к шару и смотрим вниз такие же
+  neighborBall = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 1) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 1);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      endColumnHorizontal = neighborBall.column;
+    }
+  }
+
+  const burnedBalls = [];
+  if (endColumnHorizontal - startColumnHorizontal + 1 >= 5) {
+    for (let index = startColumnHorizontal; index <= endColumnHorizontal; index++) {
+      burnedBalls.push(getGridIndex(rowHorizintal, index));
+    }
+  }
+  return burnedBalls;
+}
+
+function leftDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
+  const currentColor = ball.color;
+
+  let startColumnHorizontal = ball.column;
+  let endColumnHorizontal = ball.column;
+  let startRowVertical = ball.row;
+  // Идем влево от шара и смотрим такие же
+  let neighborBall: TBall| undefined = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 10) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 10);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      startColumnHorizontal = neighborBall.column;
+      startRowVertical = neighborBall.row;
+    }
+  }
+
+  // Вернемся назад к шару и смотрим вниз такие же
+  neighborBall = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 10) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 10);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      endColumnHorizontal = neighborBall.column;
+    }
+  }
+
+  const burnedBalls = [];
+  if (endColumnHorizontal - startColumnHorizontal + 1 >= 5) {
+    for (let index = startColumnHorizontal; index <= endColumnHorizontal; index++) {
+      burnedBalls.push(getGridIndex(startRowVertical, index));
+      startRowVertical += 1;
+    }
+  }
+  return burnedBalls;
+}
+function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
+  const currentColor = ball.color;
+
+  let startColumnHorizontal = ball.column;
+  let endColumnHorizontal = ball.column;
+  let endRowVertical = ball.row;
+  // Идем влево от шара и смотрим такие же
+  let neighborBall: TBall| undefined = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 8) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 8);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      endColumnHorizontal = neighborBall.column;
+    }
+  }
+
+  // Вернемся назад к шару и смотрим вниз такие же
+  neighborBall = ball;
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 8) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 8);
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+      startColumnHorizontal = neighborBall.column;
+      endRowVertical = neighborBall.row;
+    }
+  }
+
+  const burnedBalls = [];
+  if (endColumnHorizontal - startColumnHorizontal + 1 >= 5) {
+    for (let index = startColumnHorizontal; index <= endColumnHorizontal; index++) {
+      burnedBalls.push(getGridIndex(endRowVertical, index));
+      endRowVertical -= 1;
+    }
+  }
+  return burnedBalls;
+}
+
+function burnBalls(arrayToBurn: number[], map: Map<number, TBall>) :void {
+  arrayToBurn.forEach((index:number) => {
+    const burnedBall = map.get(index);
+    if (burnedBall) {
+      burnedBall.active = false;
+    }
+  });
+}
+
+export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls };

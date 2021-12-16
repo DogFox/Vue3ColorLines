@@ -31,9 +31,8 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
 import ColorCircle from './ColorCircle.vue';
-import { getRandom, getGridIndex } from './utils/utils';
 import { TBall } from './types';
-import { verticalProcessing, genMap, nextMove } from './processing';
+import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls } from './processing';
 
 export default defineComponent({
   name: 'App',
@@ -61,7 +60,13 @@ export default defineComponent({
     };
 
     const checkMovedBall = function(ball: TBall) {
-      verticalProcessing(ball, map);
+      const burnedBalls = [
+        ...verticalProcessing(ball, map),
+        ...horizontalProcessing(ball, map),
+        ...leftDiagonalProcessing(ball, map),
+        ...rightDiagonalProcessing(ball, map),
+      ];
+      burnBalls(burnedBalls, map);
     };
 
     const clickOnCell = function(ball: TBall) {
