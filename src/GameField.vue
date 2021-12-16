@@ -9,13 +9,13 @@
       class="game-field"
     >
       <template
-        v-for="i in 81"
-        :key="i"
+        v-for="(item, index) in map"
+        :key="index"
       >
         <div class="border border-black cell">
           <color-circle
-            :index="i"
-            :display="checkPosition(i)"
+            :index="index+1"
+            :display="map.get(index+1).active"
           />
         </div>
       </template>
@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, reactive, onMounted } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { getRandom, getMapKey, getGridIndex } from './utils/utils';
 
@@ -34,14 +34,6 @@ export default defineComponent({
     ColorCircle,
   },
   setup() {
-    const arr = 'test';
-
-    const iterator = function() {
-      const grid = document.getElementById('grid');
-      // console.log(grid);
-      // console.log(getRandom(9));
-    };
-
     const nextStep = function() {
       for (let index = 0; index < 3; index++) {
         let row, column, gridIndex;
@@ -49,29 +41,45 @@ export default defineComponent({
           row = getRandom(9);
           column = getRandom(9);
           gridIndex = getGridIndex(row, column);
-        } while (map.has(gridIndex) && map.size !== 0 && map.size !== 81);
+        } while (checkIndexInMap(gridIndex));
 
         map.set(gridIndex, { row: row, column: column, active: true });
       }
     };
 
-    const map = new Map();
+    const genMap = function() {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          const gridIndex = getGridIndex(row, col);
+          map.set(gridIndex, { row: row, column: col, active: false });
+        }
+      }
+    };
+
+    const checkIndexInMap = function(index: number) {
+      const el = map.get(index);
+      return el.active;
+    };
+
+    // const map = new Map();
+    const map = reactive(new Map());
+    genMap();
     nextStep();
 
     onMounted(() => {
-      iterator();
+      // iterator();
     });
 
     const onClick = function() {
       nextStep();
     };
 
-    const checkPosition = function(index: number): boolean {
+    const checkPosition = function(index: string): boolean {
       return map.has(index);
     };
 
     return {
-      arr,
+      map,
       onClick,
       checkPosition,
     };
