@@ -66,7 +66,11 @@ export default defineComponent({
         ...leftDiagonalProcessing(ball, map),
         ...rightDiagonalProcessing(ball, map),
       ];
-      burnBalls(burnedBalls, map);
+      if (burnedBalls.length > 0) {
+        burnBalls(burnedBalls, map);
+      } else {
+        nextMove(map);
+      }
     };
 
     const clickOnCell = function(ball: TBall) {
@@ -76,7 +80,6 @@ export default defineComponent({
         activeBall.active = false;
         activeBall = {} as TBall;
         checkMovedBall(ball);
-        nextMove(map);
       }
     };
 
