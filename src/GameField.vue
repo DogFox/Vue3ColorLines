@@ -1,4 +1,7 @@
 <template>
+  <div>
+    Score: {{ currentScore }}
+  </div>
   <div class="m-auto w-6/12 py-10">
     <div
       id="grid"
@@ -25,10 +28,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
 import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute } from './processing';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'App',
@@ -36,8 +40,11 @@ export default defineComponent({
     ColorCircle,
   },
   setup() {
+    const store = useStore();
     const map = genMap();
     nextMove(map);
+
+    const currentScore = computed(() => store.getters.getScore);
 
     let activeRow = -1;
     let activeCol = -1;
@@ -84,6 +91,7 @@ export default defineComponent({
       map,
       activateBall,
       clickOnCell,
+      currentScore,
     };
   },
 });

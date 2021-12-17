@@ -1,6 +1,7 @@
 import { TBall } from './types';
 import { getRandom, getGridIndex, colorArray } from './utils/utils';
 import { reactive } from 'vue';
+import store from './store/index';
 
 function getRandomColor() {
   return colorArray[getRandom(7)];
@@ -223,12 +224,15 @@ function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[]
 }
 
 function burnBalls(arrayToBurn: number[], map: Map<number, TBall>) :void {
+  let count = 0;
   arrayToBurn.forEach((index:number) => {
     const burnedBall = map.get(index);
     if (burnedBall) {
       burnedBall.active = false;
+      count++;
     }
   });
+  store.commit('SET_SCORE', count);
 }
 
 export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute };
