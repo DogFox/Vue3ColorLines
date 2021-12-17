@@ -2,7 +2,7 @@
   <div
     :class="[ 'circle', 'color', { display: display}]"
   >
-    {{ index }}
+    <!-- {{ index }} -->
   </div>
 </template>
 
@@ -27,7 +27,6 @@ export default defineComponent({
   border: 1px solid #0F1C3F;
   height: 55px;
   width: 55px;
-  // display: none;
   visibility: hidden;
 
 }

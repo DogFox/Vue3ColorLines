@@ -2,7 +2,7 @@
   <h1 class="text-3xl font-bold ">
     Color Lines!
   </h1>
-  <game-field class="py-10" />
+  <game-field />
 </template>
 
 <script lang="ts">

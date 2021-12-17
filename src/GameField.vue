@@ -1,9 +1,5 @@
 <template>
-  <button @click="onClick()">
-    Смена видимости
-  </button>
-
-  <div class="m-auto w-6/12">
+  <div class="m-auto w-6/12 py-10">
     <div
       id="grid"
       class="game-field"
@@ -42,10 +38,6 @@ export default defineComponent({
   setup() {
     const map = genMap();
     nextMove(map);
-
-    const onClick = function() {
-      nextMove(map);
-    };
 
     let activeRow = -1;
     let activeCol = -1;
@@ -90,7 +82,6 @@ export default defineComponent({
 
     return {
       map,
-      onClick,
       activateBall,
       clickOnCell,
     };
