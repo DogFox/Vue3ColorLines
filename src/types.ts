@@ -2,6 +2,6 @@ export type TBall = {
    index: number,
    row: number,
    column: number,
-   active: boolean,
+   display: boolean,
    color: string,
 }

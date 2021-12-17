@@ -18,7 +18,7 @@
         >
           <color-circle
             :index="index"
-            :display="item.active"
+            :display="item.display"
             :color="item.color"
             @click.stop="activateBall(item)"
           />
@@ -29,10 +29,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, computed } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
-import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute } from './processing';
+import { genMap, nextMove, checkMovedBall, checkRoute } from './processing';
 import { useStore } from 'vuex';
 
 export default defineComponent({
@@ -53,24 +53,10 @@ export default defineComponent({
     let activeBall = {} as TBall;
 
     const activateBall = function(ball: TBall) {
-      if (ball.active) {
+      if (ball.display) {
         activeRow = ball.row;
         activeCol = ball.column;
         activeBall = ball;
-      }
-    };
-
-    const checkMovedBall = function(ball: TBall) {
-      const burnedBalls = [
-        ...verticalProcessing(ball, map),
-        ...horizontalProcessing(ball, map),
-        ...leftDiagonalProcessing(ball, map),
-        ...rightDiagonalProcessing(ball, map),
-      ];
-      if (burnedBalls.length > 0) {
-        burnBalls(burnedBalls, map);
-      } else {
-        nextMove(map);
       }
     };
 
@@ -80,12 +66,14 @@ export default defineComponent({
         return;
       }
 
-      if (activeRow >= 0 && activeCol >= 0 && ball.active === false && activeBall.active) {
-        ball.active = true;
+      if (activeRow >= 0 && activeCol >= 0 && ball.display === false && activeBall.display) {
+        ball.display = true;
         ball.color = activeBall.color;
-        activeBall.active = false;
+        activeBall.display = false;
         activeBall = {} as TBall;
-        checkMovedBall(ball);
+        if (!checkMovedBall(ball, map)) {
+          nextMove(map);
+        }
       }
     };
 

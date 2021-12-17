@@ -9,7 +9,7 @@ function getRandomColor() {
 
 function checkIndexInMap(index: number, map: Map<number, TBall>) {
   const el = map.get(index);
-  return el && el.active;
+  return el && el.display;
 }
 
 function nextMove(map: Map<number, TBall>): void {
@@ -22,7 +22,9 @@ function nextMove(map: Map<number, TBall>): void {
     } while (checkIndexInMap(gridIndex, map));
 
     const color = getRandomColor();
-    map.set(gridIndex, { index: gridIndex, row: row, column: column, active: true, color: color });
+    const newBall = { index: gridIndex, row: row, column: column, display: true, color: color };
+    map.set(gridIndex, newBall);
+    checkMovedBall(newBall, map);
   }
 }
 
@@ -31,7 +33,7 @@ function genMap():Map<number, TBall> {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const gridIndex = getGridIndex(row, col);
-      map.set(gridIndex, { index: gridIndex, row: row, column: col, active: false, color: 'red' });
+      map.set(gridIndex, { index: gridIndex, row: row, column: col, display: false, color: 'red' });
     }
   }
   return map;
@@ -54,7 +56,7 @@ function checkRoute(currentPosition: TBall, newPosition: TBall, map: Map<number,
       neighbours = generateNeighbours(current, map);
     }
     neighbours.forEach((neighbour: TBall) => {
-      if (!neighbour.active && !(visited.filter((position:TBall) => position.index === neighbour.index).length > 0)) {
+      if (!neighbour.display && !(visited.filter((position:TBall) => position.index === neighbour.index).length > 0)) {
         frontier.push(neighbour);
       }
     });
@@ -96,18 +98,18 @@ function verticalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
   let endRowVertical = ball.row;
   // Идем вверх от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 10) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 10) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index - 10);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       startRowVertical = neighborBall.row;
     }
   }
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 10) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 10) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index + 10);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       endRowVertical = neighborBall.row;
     }
   }
@@ -129,18 +131,18 @@ function horizontalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
   let endColumnHorizontal = ball.column;
   // Идем влево от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 1) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 1) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index - 1);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       startColumnHorizontal = neighborBall.column;
     }
   }
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 1) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 1) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index + 1);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       endColumnHorizontal = neighborBall.column;
     }
   }
@@ -162,9 +164,9 @@ function leftDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] 
   let startRowVertical = ball.row;
   // Идем влево от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 11) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 11) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index - 11);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       startColumnHorizontal = neighborBall.column;
       startRowVertical = neighborBall.row;
     }
@@ -172,9 +174,9 @@ function leftDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] 
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 11) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 11) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index + 11);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       endColumnHorizontal = neighborBall.column;
     }
   }
@@ -196,18 +198,18 @@ function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[]
   let endRowVertical = ball.row;
   // Идем влево от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index - 9);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       endColumnHorizontal = neighborBall.column;
     }
   }
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.active) {
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.display) {
     neighborBall = map.get(neighborBall.index + 9);
-    if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
+    if (neighborBall && neighborBall.color === currentColor && neighborBall.display) {
       startColumnHorizontal = neighborBall.column;
       endRowVertical = neighborBall.row;
     }
@@ -223,16 +225,30 @@ function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[]
   return burnedBalls;
 }
 
+function checkMovedBall(ball: TBall, map: Map<number, TBall>): boolean {
+  const burnedBalls = [
+    ...verticalProcessing(ball, map),
+    ...horizontalProcessing(ball, map),
+    ...leftDiagonalProcessing(ball, map),
+    ...rightDiagonalProcessing(ball, map),
+  ];
+  if (burnedBalls.length > 0) {
+    burnBalls(burnedBalls, map);
+    return true;
+  }
+  return false;
+}
+
 function burnBalls(arrayToBurn: number[], map: Map<number, TBall>) :void {
   let count = 0;
   arrayToBurn.forEach((index:number) => {
     const burnedBall = map.get(index);
     if (burnedBall) {
-      burnedBall.active = false;
+      burnedBall.display = false;
       count++;
     }
   });
   store.commit('SET_SCORE', count);
 }
 
-export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute };
+export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute, checkMovedBall };
