@@ -20,8 +20,11 @@ export const state: TLineState = {
 };
 
 export const mutations: MutationTree<TLineState> & TLineMutations = {
-  SET_SCORE(state, score) {
-    state.score += score;
+  SET_SCORE(state, count) {
+    state.score += count;
+    if (state.score > state.maxScore) {
+      state.maxScore = state.score;
+    }
   },
 };
 

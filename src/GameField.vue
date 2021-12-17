@@ -1,6 +1,7 @@
 <template>
   <div>
     Score: {{ currentScore }}
+    MaxScore: {{ currentScore }}
   </div>
   <div class="m-auto w-6/12 py-10">
     <div
@@ -45,6 +46,7 @@ export default defineComponent({
     nextMove(map);
 
     const currentScore = computed(() => store.getters.getScore);
+    const currentMaxScore = computed(() => store.getters.getMaxScore);
 
     let activeRow = -1;
     let activeCol = -1;
@@ -92,6 +94,7 @@ export default defineComponent({
       activateBall,
       clickOnCell,
       currentScore,
+      currentMaxScore,
     };
   },
 });
