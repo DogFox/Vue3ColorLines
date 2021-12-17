@@ -1,8 +1,8 @@
 <template>
   <div
-    :class="[ 'circle', 'color', { display: display}]"
+    :class="[ 'circle', 'color', 'shadow', { display: display}, {active: active}]"
   >
-    <!-- {{ index }} -->
+    <!-- {{ active }} -->
   </div>
 </template>
 
@@ -16,6 +16,7 @@ export default defineComponent({
   props: {
     index: { type: Number, default: 0 },
     display: { type: Boolean, default: false },
+    active: { type: Boolean, default: false },
     color: { type: String, required: true },
   },
 });
@@ -24,16 +25,22 @@ export default defineComponent({
 <style lang="scss">
 .circle {
   border-radius: 50%;
-  border: 1px solid #0F1C3F;
+  // border: 1px solid #0F1C3F;
   height: 55px;
   width: 55px;
   visibility: hidden;
 
 }
-.color {
-  background-color: v-bind(color);
-}
+// .color {
+//   background-color: v-bind(color);
+// }
 .display {
   visibility: visible;
+}
+.active {
+  box-shadow: 0 0 10px springgreen;
+}
+.shadow {
+  background: -webkit-radial-gradient(20px 20px, circle, v-bind(color), rgb(51, 48, 48));
 }
 </style>

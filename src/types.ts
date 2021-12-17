@@ -3,5 +3,6 @@ export type TBall = {
    row: number,
    column: number,
    display: boolean,
+   active: boolean,
    color: string,
 }

@@ -22,7 +22,7 @@ function nextMove(map: Map<number, TBall>): void {
     } while (checkIndexInMap(gridIndex, map));
 
     const color = getRandomColor();
-    const newBall = { index: gridIndex, row: row, column: column, display: true, color: color };
+    const newBall = { index: gridIndex, row: row, column: column, display: true, color: color, active: false };
     map.set(gridIndex, newBall);
     checkMovedBall(newBall, map);
   }
@@ -33,7 +33,7 @@ function genMap():Map<number, TBall> {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const gridIndex = getGridIndex(row, col);
-      map.set(gridIndex, { index: gridIndex, row: row, column: col, display: false, color: 'red' });
+      map.set(gridIndex, { index: gridIndex, row: row, column: col, display: false, color: 'red', active: false });
     }
   }
   return map;

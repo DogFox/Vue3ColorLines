@@ -3,28 +3,27 @@
     Score: {{ currentScore }}
     MaxScore: {{ currentScore }}
   </div>
-  <div class="m-auto w-6/12 py-10">
-    <div
-      id="grid"
-      class="game-field"
+  <div
+    id="grid"
+    class="m-auto game-field "
+  >
+    <template
+      v-for="[index, item] in map"
+      :key="index"
     >
-      <template
-        v-for="[index, item] in map"
-        :key="index"
+      <div
+        class="cell"
+        @click="clickOnCell(item)"
       >
-        <div
-          class="border border-black cell"
-          @click="clickOnCell(item)"
-        >
-          <color-circle
-            :index="index"
-            :display="item.display"
-            :color="item.color"
-            @click.stop="activateBall(item)"
-          />
-        </div>
-      </template>
-    </div>
+        <color-circle
+          :index="index"
+          :display="item.display"
+          :active="item.active"
+          :color="item.color"
+          @click.stop="activateBall(item)"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -54,9 +53,13 @@ export default defineComponent({
 
     const activateBall = function(ball: TBall) {
       if (ball.display) {
+        if (activeBall) {
+          activeBall.active = false;
+        }
         activeRow = ball.row;
         activeCol = ball.column;
         activeBall = ball;
+        ball.active = true;
       }
     };
 
@@ -93,11 +96,23 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-gap: 0px 0px;
+  width: 540px;
+
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+}
+.game-field > div {
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
 }
 .cell {
   height: 60px;
-   display: flex;
-   align-items: center;
-   justify-content: center;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(226, 226, 226);
+  // background: linear-gradient(90deg, rgba(175,175,175,1) 0%, rgba(105,102,102,1) 100%);
 }
+
 </style>
