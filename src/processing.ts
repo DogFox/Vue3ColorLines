@@ -1,9 +1,6 @@
 import { TBall } from './types';
-import { getRandom, getGridIndex } from './utils/utils';
+import { getRandom, getGridIndex, colorArray } from './utils/utils';
 import { reactive } from 'vue';
-
-const colorArray = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
-// const colorArray = ['red', 'red', 'red', 'red', 'red', 'red', 'red'];
 
 function getRandomColor() {
   return colorArray[getRandom(7)];
@@ -57,7 +54,7 @@ function checkRoute(currentPosition: TBall, newPosition: TBall, map: Map<number,
     }
     neighbours.forEach((neighbour: TBall) => {
       if (!neighbour.active && !(visited.filter((position:TBall) => position.index === neighbour.index).length > 0)) {
-        visited.push(neighbour);
+        frontier.push(neighbour);
       }
     });
   }
@@ -66,25 +63,27 @@ function checkRoute(currentPosition: TBall, newPosition: TBall, map: Map<number,
 
 function generateNeighbours(currentPosition: TBall, map: Map<number, TBall>): TBall[] {
   const neighbours = [] as TBall[];
-  const topNeighbour = map.get(currentPosition.index - 9);
+  const topNeighbour = map.get(currentPosition.index - 10);
   if (topNeighbour) {
     neighbours.push(topNeighbour);
   }
 
-  const bottomNeighbour = map.get(currentPosition.index + 9);
+  const bottomNeighbour = map.get(currentPosition.index + 10);
   if (bottomNeighbour) {
     neighbours.push(bottomNeighbour);
   }
 
+  // Проверка гарантирует нам, что этот элемент находится с нами на одной строке.
   const leftNeighbour = map.get(currentPosition.index - 1);
-  if (leftNeighbour) {
+  if (leftNeighbour && Math.floor(leftNeighbour.index / 10) === Math.floor(currentPosition.index / 10)) {
     neighbours.push(leftNeighbour);
   }
 
   const rightNeighbour = map.get(currentPosition.index + 1);
-  if (rightNeighbour) {
+  if (rightNeighbour && Math.floor(rightNeighbour.index / 10) === Math.floor(currentPosition.index / 10)) {
     neighbours.push(rightNeighbour);
   }
+
   return neighbours;
 }
 
@@ -96,8 +95,8 @@ function verticalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
   let endRowVertical = ball.row;
   // Идем вверх от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index - 9);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 10) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 10);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       startRowVertical = neighborBall.row;
     }
@@ -105,8 +104,8 @@ function verticalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index + 9);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 10) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 10);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       endRowVertical = neighborBall.row;
     }
@@ -162,8 +161,8 @@ function leftDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] 
   let startRowVertical = ball.row;
   // Идем влево от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 10) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index - 10);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 11) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 11);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       startColumnHorizontal = neighborBall.column;
       startRowVertical = neighborBall.row;
@@ -172,8 +171,8 @@ function leftDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[] 
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 10) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index + 10);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 11) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 11);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       endColumnHorizontal = neighborBall.column;
     }
@@ -196,8 +195,8 @@ function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[]
   let endRowVertical = ball.row;
   // Идем влево от шара и смотрим такие же
   let neighborBall: TBall| undefined = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 8) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index - 8);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index - 9) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index - 9);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       endColumnHorizontal = neighborBall.column;
     }
@@ -205,8 +204,8 @@ function rightDiagonalProcessing(ball: TBall, map: Map<number, TBall>): number[]
 
   // Вернемся назад к шару и смотрим вниз такие же
   neighborBall = ball;
-  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 8) && neighborBall.active) {
-    neighborBall = map.get(neighborBall.index + 8);
+  while (neighborBall && neighborBall.color === currentColor && map.has(neighborBall.index + 9) && neighborBall.active) {
+    neighborBall = map.get(neighborBall.index + 9);
     if (neighborBall && neighborBall.color === currentColor && neighborBall.active) {
       startColumnHorizontal = neighborBall.column;
       endRowVertical = neighborBall.row;

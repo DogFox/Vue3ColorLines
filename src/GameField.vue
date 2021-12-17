@@ -9,18 +9,18 @@
       class="game-field"
     >
       <template
-        v-for="(item, index) in map"
+        v-for="[index, item] in map"
         :key="index"
       >
         <div
           class="border border-black cell"
-          @click="clickOnCell(map.get(index+1))"
+          @click="clickOnCell(item)"
         >
           <color-circle
-            :index="index+1"
-            :display="map.get(index+1).active"
-            :color="map.get(index+1).color"
-            @click.stop="activateBall(map.get(index+1))"
+            :index="index"
+            :display="item.active"
+            :color="item.color"
+            @click.stop="activateBall(item)"
           />
         </div>
       </template>
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
 import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute } from './processing';
@@ -75,7 +75,9 @@ export default defineComponent({
 
     const clickOnCell = function(ball: TBall) {
       const availablePosition = checkRoute(activeBall, ball, map);
-      console.log('доступна', availablePosition);
+      if (!availablePosition) {
+        return;
+      }
 
       if (activeRow >= 0 && activeCol >= 0 && ball.active === false && activeBall.active) {
         ball.active = true;

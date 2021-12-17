@@ -4,7 +4,9 @@ function getRandom(max: number):number {
 }
 
 function getGridIndex(row:number, column: number): number {
-  return 9 * row + column + 1;
+  return 10 * row + column + 1;
 }
+const colorArray = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+// const colorArray = ['red', 'red', 'red', 'red', 'red', 'red', 'red'];
 
-export { getRandom, getGridIndex };
+export { getRandom, getGridIndex, colorArray };
