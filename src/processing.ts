@@ -39,6 +39,55 @@ function genMap():Map<number, TBall> {
   return map;
 }
 
+// Поиск в глубину
+function checkRoute(currentPosition: TBall, newPosition: TBall, map: Map<number, TBall>): boolean {
+  const visited = [] as TBall[];
+  const frontier = [] as TBall[];
+  frontier.push(currentPosition);
+
+  while (frontier.length > 0) {
+    const current = frontier.pop() as TBall;
+    visited.push(current);
+
+    if (current.index === newPosition.index) { return true; }
+
+    let neighbours = [] as TBall[];
+    if (current) {
+      neighbours = generateNeighbours(current, map);
+    }
+    neighbours.forEach((neighbour: TBall) => {
+      if (!neighbour.active && !(visited.filter((position:TBall) => position.index === neighbour.index).length > 0)) {
+        visited.push(neighbour);
+      }
+    });
+  }
+  return false;
+}
+
+function generateNeighbours(currentPosition: TBall, map: Map<number, TBall>): TBall[] {
+  const neighbours = [] as TBall[];
+  const topNeighbour = map.get(currentPosition.index - 9);
+  if (topNeighbour) {
+    neighbours.push(topNeighbour);
+  }
+
+  const bottomNeighbour = map.get(currentPosition.index + 9);
+  if (bottomNeighbour) {
+    neighbours.push(bottomNeighbour);
+  }
+
+  const leftNeighbour = map.get(currentPosition.index - 1);
+  if (leftNeighbour) {
+    neighbours.push(leftNeighbour);
+  }
+
+  const rightNeighbour = map.get(currentPosition.index + 1);
+  if (rightNeighbour) {
+    neighbours.push(rightNeighbour);
+  }
+  return neighbours;
+}
+
 function verticalProcessing(ball: TBall, map: Map<number, TBall>): number[] {
   const colVertical = ball.column;
   const currentColor = ball.color;
@@ -183,4 +232,4 @@ function burnBalls(arrayToBurn: number[], map: Map<number, TBall>) :void {
   });
 }
 
-export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls };
+export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute };

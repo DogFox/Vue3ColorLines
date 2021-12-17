@@ -20,7 +20,7 @@
             :index="index+1"
             :display="map.get(index+1).active"
             :color="map.get(index+1).color"
-            @click="activateBall(map.get(index+1))"
+            @click.stop="activateBall(map.get(index+1))"
           />
         </div>
       </template>
@@ -32,7 +32,7 @@
 import { defineComponent, ref, reactive } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
-import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls } from './processing';
+import { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute } from './processing';
 
 export default defineComponent({
   name: 'App',
@@ -74,6 +74,9 @@ export default defineComponent({
     };
 
     const clickOnCell = function(ball: TBall) {
+      const availablePosition = checkRoute(activeBall, ball, map);
+      console.log('доступна', availablePosition);
+
       if (activeRow >= 0 && activeCol >= 0 && ball.active === false && activeBall.active) {
         ball.active = true;
         ball.color = activeBall.color;
