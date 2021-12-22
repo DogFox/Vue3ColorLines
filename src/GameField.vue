@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, reactive, ref } from 'vue';
+import { defineComponent, computed, reactive } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
 import { genMap, nextMove, checkMovedBall, checkRoute, clearMap } from './processing';
