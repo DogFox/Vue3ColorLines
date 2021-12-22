@@ -34,11 +34,37 @@ export default defineComponent({
 // .color {
 //   background-color: v-bind(color);
 // }
+@keyframes changesize {
+  from {
+    margin-top: -4px;
+    height: 55px;
+    width: 55px;
+  }
+
+  to {
+    margin-top: 4px;
+    height: 54px;
+    width: 59px;
+  }
+}
+
 .display {
   visibility: visible;
 }
 .active {
-  box-shadow: 0 0 10px springgreen;
+  animation-duration: .5s;
+  animation-name: changesize;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+
+  -moz-animation-duration: .5s;
+  -webkit-animation-duration: .5s;
+  -moz-animation-name: changesize;
+  -webkit-animation-name: changesize;
+  -moz-animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-direction: alternate;
+  -webkit-animation-direction: alternate;
 }
 .shadow {
   background: -webkit-radial-gradient(20px 20px, circle, v-bind(color), rgb(51, 48, 48));
