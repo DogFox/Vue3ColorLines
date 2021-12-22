@@ -1,9 +1,14 @@
 <template>
-  <div
-    :class="[ 'circle', 'color', 'shadow', { display: display}, {active: active}]"
+  <transition
+    name="bounce"
   >
+    <div
+      v-if="display"
+      :class="[ 'circle', 'color', 'shadow', { display: display }, { active: active }]"
+    >
     <!-- {{ active }} -->
-  </div>
+    </div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -25,16 +30,38 @@ export default defineComponent({
 <style lang="scss">
 .circle {
   border-radius: 50%;
-  // border: 1px solid #0F1C3F;
   height: 55px;
   width: 55px;
   visibility: hidden;
 
 }
-// .color {
-//   background-color: v-bind(color);
-// }
 @keyframes changesize {
+  from {
+    margin-top: -4px;
+    height: 55px;
+    width: 55px;
+  }
+
+  to {
+    margin-top: 4px;
+    height: 54px;
+    width: 59px;
+  }
+}
+@-moz-keyframes changesize {
+  from {
+    margin-top: -4px;
+    height: 55px;
+    width: 55px;
+  }
+
+  to {
+    margin-top: 4px;
+    height: 54px;
+    width: 59px;
+  }
+}
+@-webkit-keyframes changesize {
   from {
     margin-top: -4px;
     height: 55px;
@@ -52,13 +79,13 @@ export default defineComponent({
   visibility: visible;
 }
 .active {
-  animation-duration: .5s;
+  animation-duration: .4s;
   animation-name: changesize;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 
-  -moz-animation-duration: .5s;
-  -webkit-animation-duration: .5s;
+  -moz-animation-duration: .4s;
+  -webkit-animation-duration: .4s;
   -moz-animation-name: changesize;
   -webkit-animation-name: changesize;
   -moz-animation-iteration-count: infinite;
@@ -68,5 +95,23 @@ export default defineComponent({
 }
 .shadow {
   background: -webkit-radial-gradient(20px 20px, circle, v-bind(color), rgb(51, 48, 48));
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  // 50% {
+    // transform: scale(1.25);
+  // }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
