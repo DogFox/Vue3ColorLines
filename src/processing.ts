@@ -15,6 +15,11 @@ function checkIndexInMap(index: number, map: Map<number, TBall>) {
 function nextMove(map: Map<number, TBall>): void {
   for (let index = 0; index < 3; index++) {
     let row, column, gridIndex;
+    const displayedBallsCount = [...map.values()].filter((ball: TBall) => ball.display).length;
+    if (displayedBallsCount === 81) {
+      store.commit('SET_FINISHED', true);
+      return;
+    }
     do {
       row = getRandom(9);
       column = getRandom(9);
@@ -37,6 +42,13 @@ function genMap():Map<number, TBall> {
     }
   }
   return map;
+}
+
+function clearMap(map: Map<number, TBall>): void {
+  map.forEach((ball:TBall) => {
+    ball.display = false;
+    ball.active = false;
+  });
 }
 
 // Поиск в глубину
@@ -251,4 +263,4 @@ function burnBalls(arrayToBurn: number[], map: Map<number, TBall>) :void {
   store.commit('SET_SCORE', count);
 }
 
-export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute, checkMovedBall };
+export { verticalProcessing, genMap, nextMove, horizontalProcessing, rightDiagonalProcessing, leftDiagonalProcessing, burnBalls, checkRoute, checkMovedBall, clearMap };

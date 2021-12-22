@@ -5,7 +5,7 @@
   </div>
   <div
     id="grid"
-    class="m-auto game-field "
+    :class="[ 'm-auto', 'game-field', { 'game-over': gameOver }]"
   >
     <template
       v-for="[index, item] in map"
@@ -25,13 +25,25 @@
       </div>
     </template>
   </div>
+  <h1
+    v-if="gameOver"
+    class="text-3xl font-bold end-game"
+  >
+    Game Over
+  </h1>
+  <button
+    class="button"
+    @click="newGame()"
+  >
+    New Game
+  </button>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, reactive, ref } from 'vue';
 import ColorCircle from './ColorCircle.vue';
 import { TBall } from './types';
-import { genMap, nextMove, checkMovedBall, checkRoute } from './processing';
+import { genMap, nextMove, checkMovedBall, checkRoute, clearMap } from './processing';
 import { useStore } from 'vuex';
 
 export default defineComponent({
@@ -46,10 +58,11 @@ export default defineComponent({
 
     const currentScore = computed(() => store.getters.getScore);
     const currentMaxScore = computed(() => store.getters.getMaxScore);
+    const gameOver = computed(() => store.getters.getFinished);
 
     let activeRow = -1;
     let activeCol = -1;
-    let activeBall = {} as TBall;
+    let activeBall = reactive({} as TBall);
 
     const activateBall = function(ball: TBall) {
       if (ball.display) {
@@ -64,6 +77,9 @@ export default defineComponent({
     };
 
     const clickOnCell = function(ball: TBall) {
+      if (!activeBall.active) {
+        return;
+      }
       const availablePosition = checkRoute(activeBall, ball, map);
       if (!availablePosition) {
         return;
@@ -73,19 +89,28 @@ export default defineComponent({
         ball.display = true;
         ball.color = activeBall.color;
         activeBall.display = false;
+        activeBall.active = false;
         activeBall = {} as TBall;
         if (!checkMovedBall(ball, map)) {
           nextMove(map);
         }
       }
     };
+    const newGame = function() {
+      clearMap(map);
+      nextMove(map);
+      store.commit('SET_FINISHED', false);
+      store.commit('SET_SCORE', 0);
+    };
 
     return {
       map,
       activateBall,
       clickOnCell,
+      newGame,
       currentScore,
       currentMaxScore,
+      gameOver,
     };
   },
 });
@@ -114,5 +139,26 @@ export default defineComponent({
   background: rgb(226, 226, 226);
   // background: linear-gradient(90deg, rgba(175,175,175,1) 0%, rgba(105,102,102,1) 100%);
 }
+.game-over {
+  opacity: 20%;
+}
+.end-game {
+    position: relative;
+    top: -350px;
+}
+.button {
+  background-color: white;
+  color: black;
+  border: 2px solid #2c3e50;
+  border-radius: .5em;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  padding: 1em;
+  margin: 1em;
+}
 
+.button:hover {
+  background-color: #2c3e50;
+  color: white;
+}
 </style>
